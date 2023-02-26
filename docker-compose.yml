@@ -1,19 +1,23 @@
 version: '3.8'
 
 volumes:
-  mysql-volume:
+  postgres-volume:
 
 services:
   app:
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
+    ports:
+      - 5173:5173
+    depends_on:
+      - db
     volumes:
       - ./src/:/var/www/html
     environment:
-      - DB_CONNECTION=mysql
+      - DB_CONNECTION=pgsql
       - DB_HOST=db
-      - DB_PORT=3306
+      - DB_PORT=5432
       - DB_DATABASE=${DB_NAME}
       - DB_USERNAME=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -32,14 +36,13 @@ services:
   db:
     build:
       context: .
-      dockerfile: ./docker/mysql/Dockerfile
+      dockerfile: ./docker/postgres/Dockerfile
     ports:
-      - ${DB_PORT}:3306
+      - ${DB_PORT}:5432
     environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      TZ: 'Asia/Tokyo'
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGTZ: 'Asia/Tokyo'
     volumes:
-      - mysql-volume:/var/lib/mysql
+      - postgres-volume:/var/lib/postgresql
